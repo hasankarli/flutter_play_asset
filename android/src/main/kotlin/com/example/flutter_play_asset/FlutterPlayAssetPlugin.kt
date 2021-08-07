@@ -32,7 +32,7 @@ public class FlutterPlayAssetPlugin: FlutterPlugin, MethodCallHandler, ActivityA
   private lateinit var channel : MethodChannel
   private lateinit var ctx: Context
   val FLUTTER_METHOD_PLAYASSET_DOWNLOAD = "playasset"
-  val FLUTTER_METHOD_DOWNLOAD_PROGRESS_UPDATE = "playasset_download_pprogress_update"
+  val FLUTTER_METHOD_DOWNLOAD_PROGRESS_UPDATE = "playasset_download_progress_update"
   val CHANNEL = "basictomodular/downloadservice"
   lateinit var methodChannel: MethodChannel
   lateinit var assetPackManager: AssetPackManager
