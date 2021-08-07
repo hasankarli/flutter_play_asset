@@ -1,0 +1,11 @@
+framework module flutter_play_asset {
+  umbrella header "flutter_play_asset-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module flutter_play_asset.Swift {
+    header "flutter_play_asset-Swift.h"
+    requires objc
+}
