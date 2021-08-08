@@ -41,6 +41,7 @@ public class FlutterPlayAssetPlugin: FlutterPlugin, MethodCallHandler, ActivityA
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), CHANNEL)
     channel.setMethodCallHandler(this);
+    methodChannel = channel;
     methodChannel.setMethodCallHandler(::onMethodCall)
   }
 

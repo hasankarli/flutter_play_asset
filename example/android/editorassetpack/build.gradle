@@ -1,5 +1,3 @@
-package example.android.editorassetpack
-
 apply plugin: 'com.android.asset-pack'
 
 assetPack {
