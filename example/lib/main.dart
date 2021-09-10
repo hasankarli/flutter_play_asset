@@ -129,23 +129,58 @@ class _SecondTabState extends State<SecondTab> implements ViewPlayAsset {
   }
 
   @override
-  void onAssetPathFound(String path) {
-    setState(() {
-      statusText = "downloaded in $path";
-    });
-  }
-
-  @override
-  void onProcessLoadingAssetPath(String message) {
-    setState(() {
-      statusText = message;
-    });
-  }
-
-  @override
   void onProgressDownload(int percentage) {
     setState(() {
-      statusText = "Download asset $percentage%";
+      statusText = "Download asset $percentage";
+    });
+  }
+
+  @override
+  void totalSize(int percentage) {
+    setState(() {
+      statusText = "$percentage";
+    });
+  }
+
+  @override
+  void errorMessage(String error) {
+    setState(() {
+      statusText = "$error";
+    });
+  }
+
+  @override
+  void onCheckAssetFolderPath(String path) {
+    setState(() {
+      statusText = "$path";
+    });
+  }
+
+  @override
+  void onAssetFail(String message) {
+    setState(() {
+      statusText = "$message";
+    });
+  }
+
+  @override
+  void onAssetStart(String message) {
+    setState(() {
+      statusText = "$message";
+    });
+  }
+
+  @override
+  void onAssetCompleted(String message) {
+    setState(() {
+      statusText = "$message";
+    });
+  }
+
+  @override
+  void onAssetNull(String message) {
+    setState(() {
+      statusText = "$message";
     });
   }
 }
