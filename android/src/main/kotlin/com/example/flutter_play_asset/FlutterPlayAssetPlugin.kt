@@ -31,8 +31,14 @@ public class FlutterPlayAssetPlugin: FlutterPlugin, MethodCallHandler, ActivityA
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private lateinit var ctx: Context
-  val FLUTTER_METHOD_PLAYASSET_DOWNLOAD = "playasset"
   val FLUTTER_METHOD_DOWNLOAD_PROGRESS_UPDATE = "playasset_download_progress_update"
+  val FLUTTER_METHOD_GET_ERROR = "get_error";
+  val FLUTTER_METHOD_CHECK_ASSET_FOLDER_PATH = "check_asset_folder_path";
+  val FLUTTER_METHOD_PLAYASSET_START  = "playasset_start";
+  val FLUTTER_METHOD_PLAYASSET_FAIL  = "playasset_fail";
+  val FLUTTER_METHOD_PLAYASSET_NULL  = "playasset_null";
+  val FLUTTER_METHOD_PLAYASSET_COMPLETED  = "playasset_completed";
+  val FLUTTER_METHOD_PLAYASSET_SIZE = "playasset_size";
   val CHANNEL = "basictomodular/downloadservice"
   lateinit var methodChannel: MethodChannel
   lateinit var assetPackManager: AssetPackManager
@@ -80,7 +86,10 @@ public class FlutterPlayAssetPlugin: FlutterPlugin, MethodCallHandler, ActivityA
         AssetPackStatus.COMPLETED -> {
           Log.d("PUZZLE", "COMPLETED")
         }
-        AssetPackStatus.DOWNLOADING -> methodChannel.invokeMethod(FLUTTER_METHOD_DOWNLOAD_PROGRESS_UPDATE, state.transferProgressPercentage())
+        AssetPackStatus.DOWNLOADING -> {
+          methodChannel.invokeMethod(FLUTTER_METHOD_DOWNLOAD_PROGRESS_UPDATE, state.bytesDownloaded())
+          Log.d("PUZZLE", "Downloading:: "+ state.bytesDownloaded())
+        }
         AssetPackStatus.FAILED ->  {
           Log.d("PUZZLE", "FAILED")
         }
@@ -89,9 +98,11 @@ public class FlutterPlayAssetPlugin: FlutterPlugin, MethodCallHandler, ActivityA
         }
         AssetPackStatus.PENDING ->  {
           Log.d("PUZZLE", "PENDING")
+          methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_SIZE, state.totalBytesToDownload())
         }
         AssetPackStatus.TRANSFERRING ->  {
           Log.d("PUZZLE", "TRANSFERRING")
+          Log.d("PUZZLE", "Transfering:: "+ state.transferProgressPercentage())
         }
         AssetPackStatus.UNKNOWN ->  {
           Log.d("PUZZLE", "UNKNOWN")
@@ -107,36 +118,35 @@ public class FlutterPlayAssetPlugin: FlutterPlugin, MethodCallHandler, ActivityA
   }
 
   private fun getAbsoluteAssetPath(assetPack: String) {
-    methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, "Checking asset path...")
+    methodChannel.invokeMethod(FLUTTER_METHOD_CHECK_ASSET_FOLDER_PATH, "Checking asset path...")
     val assetPackPath = assetPackManager!!.getPackLocation(assetPack)
     val assetsFolderPath = assetPackPath?.assetsPath()
     if (assetsFolderPath!=null){
       try {
         val file = File(assetsFolderPath)
         if (file.isDirectory) {
-          methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, assetsFolderPath)
+          methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_COMPLETED, assetsFolderPath)
         } else {
-          methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, "Error: " +assetsFolderPath+" not directory...")
+          methodChannel.invokeMethod(FLUTTER_METHOD_GET_ERROR, "Error: " +assetsFolderPath+" not directory...")
         }
       } catch (e: Exception){
-        methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, "Error: " + e.message + "...")
+        methodChannel.invokeMethod(FLUTTER_METHOD_GET_ERROR, "Error: " + e.message + "...")
       }
     } else {
-      methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, assetsFolderPath+" is null...")
+      methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_NULL, assetsFolderPath+" is null...")
       downloadPack(assetPack)
     }
   }
 
   private fun downloadPack(assetPack: String){
     package_name = assetPack
-    methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, "Start download pack "+ assetPack +"...")
+    methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_START, "Start download pack "+ assetPack +"...")
     val list: MutableList<String> = ArrayList()
     list.add(assetPack)
     assetPackManager!!.fetch(list).addOnSuccessListener {
-      methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, "Success download pack "+ assetPack +"...")
       getAbsoluteAssetPath(assetPack)
     }.addOnFailureListener {
-      methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_DOWNLOAD, "Failed download pack "+ assetPack +"...")
+      methodChannel.invokeMethod(FLUTTER_METHOD_PLAYASSET_FAIL, "Failed download pack "+ assetPack +"...")
     }
   }
 
